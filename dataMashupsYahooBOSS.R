@@ -1,8 +1,11 @@
 library(XML)
 library(PBSmapping)
 library(maptools)
-#Get an appid to http://developer.yahoo.com/maps/rest/V1/geocode.html
-appid<-'put your yahoo appid here'
+library(ROAuth)
+
+cKey<-'put your consumer key here'
+cSecret<-'put your consumer secret here'
+reqURL<-"http://yboss.yahooapis.com/geo/placefinder"
 
 #input:html filename
 #returns:dataframe of geocoded addresses that can be plotted by PBSmapping
@@ -25,22 +28,19 @@ getAddressesFromHTML<-function(myHTMLDoc){
 
 #input:vector of streets
 #output:data frame containing lat/longs in PBSmapping-acceptable format
-#this revised function uses the newer Yahoo PlaceFinder API
+#this revised function uses the newer Yahoo BOSS API
 geocodeAddresses<-function(myStreets){
   myGeoTable<-data.frame(address=character(),lat=numeric(),long=numeric(),EID=numeric())
   for(myStreet in myStreets){
-     requestUrl<-paste(
-          "http://where.yahooapis.com/geocode?appid=",appid,"&line1=",
-          URLencode(myStreet),
-          "&line2=Philadelphia,+PA"
-          ,sep="")
-        cat("geocoding:",myStreet,"\n")
+     requestParams<-c(q=paste(URLencode(myStreet),"+Philadelphia,+PA",sep=""))
+     cat("geocoding:",myStreet,"\n")
      tryCatch({
-        xmlResult<-xmlTreeParse(requestUrl,isURL=TRUE,addAttributeNamespaces=TRUE)
-        geoResult<-xmlResult$doc$children$ResultSet$children$Result
+       getResult<-ROAuth:::oauthGET(url=reqURL,consumerKey=cKey,consumerSecret=cSecret,oauthKey=NULL,oauthSecret=NULL,params=requestParams)
+       xmlResult<-xmlTreeParse(getResult,isURL=FALSE,addAttributeNamespaces=TRUE)
+       geoResult<-xmlResult$doc$children$bossresponse$children$placefinder$children$results$children$result
         if(xmlValue(geoResult[['quality']]) >= 87){
-          lat<-xmlValue(geoResult[['Latitude']])
-          long<-xmlValue(geoResult[['Longitude']])
+          lat<-xmlValue(geoResult[['latitude']])
+          long<-xmlValue(geoResult[['longitude']])
           myGeoTable<-rbind(myGeoTable,data.frame(address = myStreet, Y = lat, X = long,EID=NA))
         }
         }, error=function(err) {
