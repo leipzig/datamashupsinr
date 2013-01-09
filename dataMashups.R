@@ -69,7 +69,7 @@ geoTable$Y<-as.numeric(levels(geoTable$Y))[geoTable$Y]
 
 addressEvents<-as.EventData(geoTable)
 
-plotPolys(myShapeFile,axes=FALSE,bg="beige",main="Philadelphia County\July 2009 Foreclosures",xlab="",ylab="")
+plotPolys(myShapeFile,axes=FALSE,bg="beige",main="Philadelphia County\nJuly 2009 Foreclosures",xlab="",ylab="")
 
 addressEvents<-as.EventData(geoTable,projection=NA)
 
@@ -81,7 +81,7 @@ myTrtFC<-table(factor(addressPolys$PID,levels=levels(as.factor(myShapeFile$PID))
 
 mapColors<-heat.colors(max(myTrtFC)+1,alpha=.6)[max(myTrtFC)-myTrtFC+1]
 
-plotPolys(myShapeFile,axes=FALSE,bg="beige",main="Philadelphia County\July 2009 Foreclosure Heat Map",xlab="",ylab="",col=mapColors)
+plotPolys(myShapeFile,axes=FALSE,bg="beige",main="Philadelphia County\nJuly 2009 Foreclosure Heat Map",xlab="",ylab="",col=mapColors)
 legend("bottomright",legend=max(myTrtFC):0,fill=heat.colors(max(myTrtFC)+1,alpha=.6),title="Foreclosures")
 
 censusTable<-read.table("dc_dec_2000_sf3_u_data1.txt",sep="|",header=TRUE)
